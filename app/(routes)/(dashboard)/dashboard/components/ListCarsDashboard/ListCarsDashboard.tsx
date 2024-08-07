@@ -1,14 +1,16 @@
 'use client'
 import ModalAddReservation from "@/components/shared/ModalAddReservation/ModalAddReservation"
+import { useLovedCars } from "@/hooks/use-loved-cars"
 import { Car } from "@prisma/client"
-import { Fuel, Gem, Heart, Users, Wrench } from "lucide-react"
+import { Fuel, Gauge, Gem, Heart, Users, Wrench } from "lucide-react"
 import Image from "next/image"
 
 export interface ListCarsPropsDasboard {
-    cars: Car[]
+    cars: Car[],
 }
 export default function ListCarsDashboard({ cars }: ListCarsPropsDasboard) {
-
+    const { addLovedCar, removeLovedCar, LovedItems } = useLovedCars()
+    console.log(LovedItems)
     return (
         <div className="grid grid-cols-2 gap-6 lg:grid-cols-4 ">
             {
@@ -40,21 +42,24 @@ export default function ListCarsDashboard({ cars }: ListCarsPropsDasboard) {
                                 <p className="flex items-center">
                                     <Fuel className="h-4 w-4 mr-2" /> {car.engine}
                                 </p>
-                                <div className="flex items-center justify-center gap-x-3">
+                                <p className="flex items-center">
+                                    < Gauge className="h-4 w-4 mr-2" /> {car.cv} CV
+                                </p>
+                                <div className="flex items-center  justify-center gap-x-3">
                                     <ModalAddReservation car={car} />
-                                    <Heart className={`mt-2 cursor-pointer `} onClick={() => { }} />
-
+                                    <Heart
+                                        className={`h-6 w-6 mt-2 cursor-pointer ${LovedItems.some((item) => item.id === car.id) ? "fill-red-500" : "fill-black"}`}
+                                        onClick={
+                                            LovedItems.some((item) => item.id === car.id)
+                                                ? () => { removeLovedCar(car.id) }
+                                                : () => { addLovedCar(car) }
+                                        }
+                                    />
                                 </div>
-
-
-
                             </div>
-
                         </div>
                     )
-
                 })}
-
         </div>
     )
 }

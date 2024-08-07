@@ -12,7 +12,7 @@ export const dataGeneralSidebar = [
     href: "/reserves",
   },
   {
-    label: "Car",
+    label: "Loved Cars",
     icon: Heart,
     href: "/loved-cars",
   },
