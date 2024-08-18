@@ -2,12 +2,13 @@ import { db } from "@/lib/db"
 import { auth, currentUser } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
 import TableReserves from "./components/TableReserves"
+import { isAdminitrator } from "@/lib/isAdminitrator"
 
 
 export default async function PageReservesAdmin() {
     const { userId } = auth()
     const user = await currentUser()
-    if (!userId || !user) {
+    if (!userId || !user || !isAdminitrator(userId)) {
         return redirect("/")
     }
     const orders = await db.order.findMany({

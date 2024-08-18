@@ -10,7 +10,6 @@ export interface ListCarsPropsDasboard {
 }
 export default function ListCarsDashboard({ cars }: ListCarsPropsDasboard) {
     const { addLovedCar, removeLovedCar, LovedItems } = useLovedCars()
-    console.log(LovedItems)
     return (
         <div className="grid grid-cols-2 gap-6 lg:grid-cols-4 ">
             {
