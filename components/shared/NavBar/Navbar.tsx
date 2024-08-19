@@ -4,7 +4,6 @@ import Image from "next/image"
 import Link from "next/link"
 import { Heart, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import LovedCars from '../../../app/(routes)/(dashboard)/loved-cars/page';
 import { useLovedCars } from "@/hooks/use-loved-cars";
 
 export default function Navbar() {

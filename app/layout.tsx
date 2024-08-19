@@ -10,8 +10,8 @@ import { Toaster } from "@/components/ui/toaster"
 const outfit = Outfit({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Admin Cheo",
-  description: "Admin Cheo",
+  title: "Cheo",
+  description: "Cheo",
 };
 
 export default function RootLayout({
