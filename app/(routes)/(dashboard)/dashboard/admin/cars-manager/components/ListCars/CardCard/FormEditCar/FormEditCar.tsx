@@ -48,7 +48,7 @@ export function FormEditCar({ carData, setOpenDialog }: FormEditCarProps) {
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         try {
             console.log("Submitting form update with values:", values);
-            
+
             // Verify required fields before submission
             if (!values.name || !values.cv || !values.photo) {
                 console.error("Missing required fields:", {
@@ -56,7 +56,7 @@ export function FormEditCar({ carData, setOpenDialog }: FormEditCarProps) {
                     cv: !values.cv,
                     photo: !values.photo
                 });
-                
+
                 toast({
                     title: "Error",
                     description: "Por favor completa todos los campos requeridos",
@@ -64,7 +64,7 @@ export function FormEditCar({ carData, setOpenDialog }: FormEditCarProps) {
                 });
                 return;
             }
-            
+
             // Make sure all fields are properly formatted
             const formattedValues = {
                 ...values,
@@ -72,11 +72,11 @@ export function FormEditCar({ carData, setOpenDialog }: FormEditCarProps) {
                 priceDay: String(values.priceDay),
                 isPublish: values.isPublish || false
             };
-            
+
             console.log("Formatted values for update:", formattedValues);
             const response = await axios.patch(`/api/car/${carData.id}/form`, formattedValues);
             console.log("Server response:", response.data);
-            
+
             toast({
                 title: "Éxito",
                 description: "Vehículo actualizado correctamente",
@@ -88,7 +88,7 @@ export function FormEditCar({ carData, setOpenDialog }: FormEditCarProps) {
             console.error("Error updating car:", error);
             console.error("Response data:", error?.response?.data);
             console.error("Status code:", error?.response?.status);
-            
+
             toast({
                 title: "Error",
                 description: error?.response?.data?.error || "Algo salió mal, intenta de nuevo",
@@ -96,7 +96,7 @@ export function FormEditCar({ carData, setOpenDialog }: FormEditCarProps) {
             });
         }
     }
-    
+
     // Monitoreo del estado del formulario para debugging
     console.log("Edit form state:", {
         isDirty: form.formState.isDirty,
@@ -267,9 +267,9 @@ export function FormEditCar({ carData, setOpenDialog }: FormEditCarProps) {
                         )}
                     />
                     <div className="col-span-2">
-                        <Button 
-                            type="submit" 
-                            className="w-full mt-5" 
+                        <Button
+                            type="submit"
+                            className="w-full mt-5"
                             disabled={form.formState.isSubmitting}
                         >
                             {form.formState.isSubmitting ? "Actualizando..." : "Actualizar vehículo"}
