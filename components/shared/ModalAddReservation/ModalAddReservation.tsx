@@ -30,18 +30,46 @@ export default function ModalAddReservation({ car }: ModalAddReservationProps) {
         to: addDays(new Date(), 5)
     })
     const onReserveCar = async (car: Car, dateSelected: DateRange) => {
-        const res = await axios.post("/api/checkout", {
-            carId: car.id,
-            priceDay: car.priceDay,
-            startDate: dateSelected.from,
-            endDate: dateSelected.to,
-            carName: car.name,
-        });
+        try {
+            if (!dateSelected.from || !dateSelected.to) {
+                toast({
+                    title: "Error",
+                    description: "Por favor selecciona las fechas de inicio y fin",
+                    variant: "destructive"
+                });
+                return;
+            }
 
-        window.location = res.data.url;
-        toast({
-            title: "Car reserved ✌🏽",
-        });
+            console.log("Reservando carro:", {
+                carId: car.id,
+                priceDay: car.priceDay,
+                startDate: dateSelected.from,
+                endDate: dateSelected.to,
+                carName: car.name
+            });
+
+            const res = await axios.post("/api/checkout", {
+                carId: car.id,
+                priceDay: car.priceDay,
+                startDate: dateSelected.from,
+                endDate: dateSelected.to,
+                carName: car.name,
+            });
+
+            if (res.data.url) {
+                window.location.href = res.data.url;
+                toast({
+                    title: "Redirigiendo al pago...",
+                });
+            }
+        } catch (error: any) {
+            console.error("Error al reservar:", error);
+            toast({
+                title: "Error",
+                description: error?.response?.data?.error || "Hubo un problema al procesar tu reserva",
+                variant: "destructive"
+            });
+        }
     };
     return (
         <AlertDialog>
