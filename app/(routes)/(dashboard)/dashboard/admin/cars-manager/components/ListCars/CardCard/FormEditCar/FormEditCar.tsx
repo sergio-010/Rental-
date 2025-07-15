@@ -262,6 +262,7 @@ export function FormEditCar({ carData, setOpenDialog }: FormEditCarProps) {
                                 <FormControl>
                                     <Input placeholder="100$" type="number" {...field} />
                                 </FormControl>
+                                <FormMessage />
                             </FormItem>
                         )}
                     />
