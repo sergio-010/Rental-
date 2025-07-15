@@ -5,6 +5,7 @@ import {
     DialogContent,
     DialogDescription,
     DialogHeader,
+    DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { PlusCircle } from "lucide-react"
@@ -24,10 +25,14 @@ export default function ButtonAddCar() {
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
-                    <DialogDescription>
-                        <FormAddCar setOpenDialog={setOpenDialog} />
+                    <DialogTitle>Agregar Nuevo Vehículo</DialogTitle>
+                    <DialogDescription className="pt-3">
+                        Complete el formulario para agregar un nuevo vehículo al inventario
                     </DialogDescription>
                 </DialogHeader>
+                <div className="mt-4">
+                    <FormAddCar setOpenDialog={setOpenDialog} />
+                </div>
             </DialogContent>
         </Dialog>
     )

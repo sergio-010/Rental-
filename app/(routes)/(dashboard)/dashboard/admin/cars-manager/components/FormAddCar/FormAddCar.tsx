@@ -41,29 +41,68 @@ export default function FormAddCar({ setOpenDialog }: FormAddCarProps) {
             priceDay: "",
             isPublish: false,
         },
+        mode: "onChange",
     })
     const router = useRouter()
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
-        setOpenDialog(false)
         try {
-            await axios.post("/api/car", values)
-            toast({
-                title: "Success",
-                description: "Car added successfully",
-            })
+            console.log("Submitting form with values:", values);
 
-            router.refresh()
-        } catch (error) {
+            // Verify required fields before submission
+            if (!values.name || !values.cv || !values.photo) {
+                console.error("Missing required fields:", {
+                    name: !values.name,
+                    cv: !values.cv,
+                    photo: !values.photo
+                });
+
+                toast({
+                    title: "Error",
+                    description: "Por favor completa todos los campos requeridos",
+                    variant: "destructive",
+                });
+                return;
+            }
+
+            // Make sure all fields are properly formatted
+            const formattedValues = {
+                ...values,
+                cv: String(values.cv),
+                priceDay: String(values.priceDay),
+                isPublish: values.isPublish || false
+            };
+
+            console.log("Formatted values for submission:", formattedValues);
+            const response = await axios.post("/api/car", formattedValues);
+            console.log("Server response:", response.data);
+
+            toast({
+                title: "Éxito",
+                description: "Carro agregado exitosamente",
+            });
+
+            setOpenDialog(false);
+            router.refresh();
+        } catch (error: any) {
+            console.error("Error adding car:", error);
+            console.error("Response data:", error?.response?.data);
+            console.error("Status code:", error?.response?.status);
+
             toast({
                 title: "Error",
-                description: "Something went wrong",
+                description: error?.response?.data?.error || "Algo salió mal, intenta de nuevo",
                 variant: "destructive",
-            })
-
+            });
         }
     }
-    const { isValid } = form.formState
+    // Monitoreo del estado del formulario para debugging
+    console.log("Form state:", {
+        isDirty: form.formState.isDirty,
+        isValid: form.formState.isValid,
+        errors: form.formState.errors
+    });
+
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -73,7 +112,7 @@ export default function FormAddCar({ setOpenDialog }: FormAddCarProps) {
                         name="name"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Username</FormLabel>
+                                <FormLabel>Nombre del vehículo</FormLabel>
                                 <FormControl>
                                     <Input placeholder="Camaro RS" {...field} />
                                 </FormControl>
@@ -191,23 +230,39 @@ export default function FormAddCar({ setOpenDialog }: FormAddCarProps) {
                         name="photo"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Car Image</FormLabel>
-                                <FormControl>
-                                    {photoUploaded ? <p>Image uploaded</p>
-                                        : (<UploadButton
-                                            className="rounded-lg bg-slate-600/20 text-slate-800 outline-dotted outline-2 outline-offset-2 outline-slate-600"
-                                            {...field}
-                                            endpoint="photo"
-                                            onClientUploadComplete={(res) => {
-                                                form.setValue("photo", res?.[0].url)
-                                                setphotoUploaded(true)
-                                            }}
-                                            onUploadError={(error: Error) => {
-                                                console.log(error)
-                                            }}
-                                        />)
+                                <FormLabel>Car Image</FormLabel>                                    <FormControl>
+                                    {photoUploaded ?
+                                        <div className="p-2 border rounded">
+                                            <p>Image uploaded successfully ✓</p>
+                                            <p className="text-xs text-gray-500 mt-1">{form.getValues("photo")}</p>
+                                        </div>
+                                        : (
+                                            <div className="flex flex-col items-center">
+                                                <UploadButton
+                                                    className="rounded-lg bg-slate-600/20 text-slate-800 outline-dotted outline-2 outline-offset-2 outline-slate-600 ut-button:bg-primary ut-button:ut-readying:bg-primary/80"
+                                                    endpoint="photo"
+                                                    onClientUploadComplete={(res) => {
+                                                        console.log("Upload completed:", res);
+                                                        if (res && res[0]?.url) {
+                                                            form.setValue("photo", res[0].url);
+                                                            setphotoUploaded(true);
+                                                        } else {
+                                                            console.error("No URL in upload response");
+                                                        }
+                                                    }}
+                                                    onUploadError={(error: Error) => {
+                                                        console.error("Upload error:", error);
+                                                        toast({
+                                                            title: "Error uploading image",
+                                                            description: error.message || "Please try again",
+                                                            variant: "destructive"
+                                                        });
+                                                    }}
+                                                />
+                                                <p className="text-xs text-gray-500 mt-2">Upload an image of the car</p>
+                                            </div>
+                                        )
                                     }
-
                                 </FormControl>
                             </FormItem>
                         )}
@@ -217,14 +272,28 @@ export default function FormAddCar({ setOpenDialog }: FormAddCarProps) {
                         name="priceDay"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel> Price per day</FormLabel>
+                                <FormLabel>Precio por día ($)</FormLabel>
                                 <FormControl>
                                     <Input placeholder="100$" type="number" {...field} />
                                 </FormControl>
+                                <FormMessage />
                             </FormItem>
                         )}
                     />
-                    <Button type="submit" className="w-full mt-5" disabled={!form.formState.isValid}>Create Car</Button>
+                    <div className="col-span-2">
+                        <Button
+                            type="submit"
+                            className="w-full mt-5"
+                            disabled={form.formState.isSubmitting}
+                        >
+                            {form.formState.isSubmitting ? "Agregando..." : "Agregar Vehículo"}
+                        </Button>
+                        {Object.keys(form.formState.errors).length > 0 && (
+                            <p className="text-sm text-red-500 mt-2">
+                                Por favor completa todos los campos requeridos
+                            </p>
+                        )}
+                    </div>
                 </div>
             </form>
         </Form>

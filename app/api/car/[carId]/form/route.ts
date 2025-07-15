@@ -10,20 +10,45 @@ export async function PATCH(
     const { userId } = auth();
     const { carId } = params;
     const values = await request.json();
+    
+    console.log("[Car PATCH API] Received data:", values);
+    console.log("[Car PATCH API] Car ID:", carId);
+    
     if (!userId) {
-      return NextResponse.json({ error: "Not authorized" }, { status: 401 });
+      console.log("[Car PATCH API] Not authorized - no userId");
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
+
+    // Ensure all required fields are present
+    if (!values.name || !values.cv || !values.photo) {
+      console.log("[Car PATCH API] Missing required fields");
+      return NextResponse.json(
+        { error: "Faltan campos requeridos" },
+        { status: 400 }
+      );
+    }
+    
+    // Format values appropriately
+    const formattedValues = {
+      ...values,
+      cv: String(values.cv),
+      priceDay: String(values.priceDay),
+      isPublish: values.isPublish || false
+    };
+
     const car = await db.car.update({
       where: {
         id: carId,
       },
-      data: { ...values },
+      data: formattedValues,
     });
+    
+    console.log("[Car PATCH API] Car updated successfully:", car);
     return NextResponse.json(car, { status: 200 });
-  } catch (error) {
-    console.log("[Car] Error: ", error);
+  } catch (error: any) {
+    console.error("[Car PATCH API] Error updating car:", error);
     return NextResponse.json(
-      { error: "Something went wrong" },
+      { error: error?.message || "Algo salió mal" },
       { status: 500 }
     );
   }

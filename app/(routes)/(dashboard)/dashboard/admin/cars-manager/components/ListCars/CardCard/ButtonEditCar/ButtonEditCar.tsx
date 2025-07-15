@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Car } from "@prisma/client"
 import { Pencil } from "lucide-react"
 import { useState } from "react"
@@ -21,10 +21,14 @@ export function ButtonEditCar({ carData }: ButtonEditCarProps) {
                 </DialogTrigger>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogDescription>
-                            <FormEditCar carData={carData} setOpenDialog={setOpen} />
+                        <DialogTitle className="text-xl font-semibold">Editar vehículo</DialogTitle>
+                        <DialogDescription className="pt-3">
+                            Modifica la información del vehículo
                         </DialogDescription>
                     </DialogHeader>
+                    <div className="mt-4">
+                        <FormEditCar carData={carData} setOpenDialog={setOpen} />
+                    </div>
                 </DialogContent>
 
             </Dialog>
