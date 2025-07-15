@@ -41,28 +41,68 @@ export function FormEditCar({ carData, setOpenDialog }: FormEditCarProps) {
             priceDay: carData.priceDay,
             isPublish: carData.isPublish || false,
         },
+        mode: "onChange",
     })
     const router = useRouter()
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
-        setOpenDialog(false)
         try {
-            await axios.patch(`/api/car/${carData.id}/form`, values)
+            console.log("Submitting form update with values:", values);
+            
+            // Verify required fields before submission
+            if (!values.name || !values.cv || !values.photo) {
+                console.error("Missing required fields:", {
+                    name: !values.name,
+                    cv: !values.cv,
+                    photo: !values.photo
+                });
+                
+                toast({
+                    title: "Error",
+                    description: "Por favor completa todos los campos requeridos",
+                    variant: "destructive",
+                });
+                return;
+            }
+            
+            // Make sure all fields are properly formatted
+            const formattedValues = {
+                ...values,
+                cv: String(values.cv),
+                priceDay: String(values.priceDay),
+                isPublish: values.isPublish || false
+            };
+            
+            console.log("Formatted values for update:", formattedValues);
+            const response = await axios.patch(`/api/car/${carData.id}/form`, formattedValues);
+            console.log("Server response:", response.data);
+            
             toast({
-                title: "Success",
-                description: "Car updated successfully",
-            })
-            router.refresh()
-        } catch (error) {
+                title: "Éxito",
+                description: "Vehículo actualizado correctamente",
+            });
+
+            setOpenDialog(false);
+            router.refresh();
+        } catch (error: any) {
+            console.error("Error updating car:", error);
+            console.error("Response data:", error?.response?.data);
+            console.error("Status code:", error?.response?.status);
+            
             toast({
                 title: "Error",
-                description: "Something went wrong",
+                description: error?.response?.data?.error || "Algo salió mal, intenta de nuevo",
                 variant: "destructive",
-            })
-
+            });
         }
     }
-    const { isValid } = form.formState
+    
+    // Monitoreo del estado del formulario para debugging
+    console.log("Edit form state:", {
+        isDirty: form.formState.isDirty,
+        isValid: form.formState.isValid,
+        errors: form.formState.errors
+    });
 
 
     return (
@@ -225,7 +265,20 @@ export function FormEditCar({ carData, setOpenDialog }: FormEditCarProps) {
                             </FormItem>
                         )}
                     />
-                    <Button type="submit" className="w-full mt-5" disabled={!form.formState.isValid}>Update Car</Button>
+                    <div className="col-span-2">
+                        <Button 
+                            type="submit" 
+                            className="w-full mt-5" 
+                            disabled={form.formState.isSubmitting}
+                        >
+                            {form.formState.isSubmitting ? "Actualizando..." : "Actualizar vehículo"}
+                        </Button>
+                        {Object.keys(form.formState.errors).length > 0 && (
+                            <p className="text-sm text-red-500 mt-2">
+                                Por favor completa todos los campos requeridos
+                            </p>
+                        )}
+                    </div>
                 </div>
             </form>
         </Form>
